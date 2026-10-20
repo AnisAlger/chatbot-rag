@@ -104,7 +104,7 @@ export const Sidebar: React.FC = () => {
             inset: 0,
             background: 'rgba(0,0,0,0.5)',
             backdropFilter: 'blur(4px)',
-            zIndex: 40,
+            zIndex: 90,
           }}
         />
       )}

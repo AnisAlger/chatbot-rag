@@ -41,10 +41,10 @@ export const SettingsPage: React.FC = () => {
   }, []);
 
   return (
-    <div style={{ padding: '32px 40px', maxWidth: '1000px', margin: '0 auto' }}>
-      <div style={{ marginBottom: '32px' }}>
-        <h1 style={{ fontSize: '1.85rem', fontWeight: 800 }}>Settings & Diagnostics</h1>
-        <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', marginTop: '4px' }}>
+    <div className="page-container" style={{ maxWidth: '1000px' }}>
+      <div style={{ marginBottom: '28px' }}>
+        <h1 style={{ fontSize: 'clamp(1.35rem, 4vw, 1.85rem)', fontWeight: 800 }}>Settings & Diagnostics</h1>
+        <p style={{ color: 'var(--text-secondary)', fontSize: 'clamp(0.85rem, 2.5vw, 0.95rem)', marginTop: '4px' }}>
           Manage your account profile, appearance, and inspect backend AI pipeline readiness.
         </p>
       </div>
@@ -63,6 +63,7 @@ export const SettingsPage: React.FC = () => {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
+                flexShrink: 0,
               }}
             >
               <User size={22} />
@@ -78,7 +79,7 @@ export const SettingsPage: React.FC = () => {
           <div
             style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 180px), 1fr))',
               gap: '16px',
             }}
           >
@@ -86,7 +87,7 @@ export const SettingsPage: React.FC = () => {
               <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 600 }}>
                 Email Address
               </span>
-              <div style={{ fontSize: '0.95rem', fontWeight: 600, marginTop: '2px' }}>
+              <div style={{ fontSize: '0.95rem', fontWeight: 600, marginTop: '2px', wordBreak: 'break-all' }}>
                 {user?.email}
               </div>
             </div>
@@ -104,7 +105,7 @@ export const SettingsPage: React.FC = () => {
               <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 600 }}>
                 User Identifier
               </span>
-              <div style={{ fontSize: '0.85rem', fontFamily: 'monospace', color: 'var(--text-secondary)', marginTop: '2px' }}>
+              <div style={{ fontSize: '0.85rem', fontFamily: 'monospace', color: 'var(--text-secondary)', marginTop: '2px', wordBreak: 'break-all' }}>
                 {user?.id}
               </div>
             </div>
@@ -122,7 +123,7 @@ export const SettingsPage: React.FC = () => {
 
         {/* System & Architecture Diagnostics */}
         <div className="glass-panel" style={{ padding: '24px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
               <div
                 style={{
@@ -134,6 +135,7 @@ export const SettingsPage: React.FC = () => {
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
+                  flexShrink: 0,
                 }}
               >
                 <Server size={22} />
@@ -155,7 +157,7 @@ export const SettingsPage: React.FC = () => {
           <div
             style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 200px), 1fr))',
               gap: '16px',
             }}
           >
@@ -172,7 +174,7 @@ export const SettingsPage: React.FC = () => {
                 <Database size={16} color="var(--accent-primary)" />
                 <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>Database</span>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
                 <span
                   className={`badge ${
                     readyData?.database?.status === 'healthy' || readyData?.database?.status === 'degraded'
@@ -201,7 +203,7 @@ export const SettingsPage: React.FC = () => {
                 <Layers size={16} color="#8B5CF6" />
                 <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>Vector Store</span>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
                 <span className="badge badge-success">Active</span>
                 <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
                   ({readyData?.vector_store?.type})
@@ -222,7 +224,7 @@ export const SettingsPage: React.FC = () => {
                 <Sparkles size={16} color="#EC4899" />
                 <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>Embeddings</span>
               </div>
-              <div style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)' }}>
+              <div style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)', wordBreak: 'break-word' }}>
                 {readyData?.embedding_provider || 'Configured'}
               </div>
             </div>
@@ -245,6 +247,7 @@ export const SettingsPage: React.FC = () => {
                   className={`badge ${
                     readyData?.llm_configured ? 'badge-success' : 'badge-warning'
                   }`}
+                  style={{ wordBreak: 'break-word' }}
                 >
                   {readyData?.llm_configured ? 'API Key Configured' : 'Local Fallback / No Key'}
                 </span>
@@ -268,6 +271,8 @@ export const SettingsPage: React.FC = () => {
               borderRadius: 'var(--radius-md)',
               background: 'var(--bg-input)',
               border: '1px solid var(--border-color)',
+              flexWrap: 'wrap',
+              gap: '12px',
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>

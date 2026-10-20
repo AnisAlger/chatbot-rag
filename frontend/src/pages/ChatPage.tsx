@@ -622,7 +622,7 @@ export const ChatPage: React.FC = () => {
         </div>
 
         {/* Input Bar Area */}
-        <div style={{ padding: '16px 24px', background: 'var(--bg-secondary)', borderTop: '1px solid var(--border-color)' }}>
+        <div className="chat-input-bar" style={{ padding: '16px 24px', background: 'var(--bg-secondary)', borderTop: '1px solid var(--border-color)' }}>
           <form
             onSubmit={handleSendMessage}
             style={{

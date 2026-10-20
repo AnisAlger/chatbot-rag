@@ -38,10 +38,12 @@ export const CitationModal: React.FC<CitationModalProps> = ({ citation, onClose 
         style={{
           width: '100%',
           maxWidth: '560px',
+          maxHeight: '90vh',
+          overflowY: 'auto',
           background: 'var(--bg-secondary)',
           border: '1px solid var(--border-color)',
           borderRadius: 'var(--radius-lg)',
-          padding: '24px',
+          padding: 'clamp(16px, 4vw, 24px)',
           display: 'flex',
           flexDirection: 'column',
           gap: '16px',
@@ -50,7 +52,7 @@ export const CitationModal: React.FC<CitationModalProps> = ({ citation, onClose 
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '10px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <div
               style={{
@@ -58,12 +60,13 @@ export const CitationModal: React.FC<CitationModalProps> = ({ citation, onClose 
                 borderRadius: 'var(--radius-md)',
                 background: 'rgba(99, 102, 241, 0.15)',
                 color: 'var(--accent-primary)',
+                flexShrink: 0,
               }}
             >
               <Bookmark size={20} />
             </div>
             <div>
-              <h3 style={{ fontSize: '1.1rem', fontWeight: 600 }}>Source Passage Citation</h3>
+              <h3 style={{ fontSize: 'clamp(1rem, 3.5vw, 1.15rem)', fontWeight: 600 }}>Source Passage Citation</h3>
               <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
                 Verified document segment used in the generated answer
               </p>
@@ -79,6 +82,7 @@ export const CitationModal: React.FC<CitationModalProps> = ({ citation, onClose 
               cursor: 'pointer',
               padding: '6px',
               borderRadius: 'var(--radius-sm)',
+              flexShrink: 0,
             }}
           >
             <X size={20} />
@@ -98,10 +102,12 @@ export const CitationModal: React.FC<CitationModalProps> = ({ citation, onClose 
               border: '1px solid var(--border-color)',
               fontSize: '0.8rem',
               fontWeight: 500,
+              wordBreak: 'break-word',
+              maxWidth: '100%',
             }}
           >
-            <FileText size={14} color="var(--accent-primary)" />
-            <span>{citation.filename}</span>
+            <FileText size={14} color="var(--accent-primary)" style={{ flexShrink: 0 }} />
+            <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{citation.filename}</span>
           </div>
 
           <div
@@ -116,7 +122,7 @@ export const CitationModal: React.FC<CitationModalProps> = ({ citation, onClose 
               fontSize: '0.75rem',
               color: 'var(--text-muted)',
               fontFamily: 'monospace',
-              marginLeft: 'auto',
+              wordBreak: 'break-all',
             }}
           >
             Chunk: {citation.chunk_id}
@@ -133,16 +139,17 @@ export const CitationModal: React.FC<CitationModalProps> = ({ citation, onClose 
             fontSize: '0.9rem',
             lineHeight: '1.6',
             color: 'var(--text-primary)',
-            maxHeight: '260px',
+            maxHeight: 'min(40vh, 260px)',
             overflowY: 'auto',
             fontStyle: 'normal',
+            wordBreak: 'break-word',
           }}
         >
           "{citation.excerpt}"
         </div>
 
         {/* Actions */}
-        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', flexWrap: 'wrap' }}>
           <button onClick={handleCopy} className="btn-secondary" style={{ fontSize: '0.85rem' }}>
             {copied ? <Check size={16} color="var(--success)" /> : <Copy size={16} />}
             <span>{copied ? 'Copied' : 'Copy Excerpt'}</span>

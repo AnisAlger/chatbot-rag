@@ -321,7 +321,7 @@ export const DocumentsPage: React.FC = () => {
                 gap: '16px',
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '16px', minWidth: '240px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flex: '1 1 min(100%, 260px)', minWidth: 0 }}>
                 <div
                   style={{
                     width: '42px',
@@ -337,8 +337,10 @@ export const DocumentsPage: React.FC = () => {
                 >
                   <FileText size={22} />
                 </div>
-                <div>
-                  <div style={{ fontWeight: 600, fontSize: '0.95rem' }}>{doc.filename}</div>
+                <div style={{ minWidth: 0, overflow: 'hidden' }}>
+                  <div style={{ fontWeight: 600, fontSize: '0.95rem', wordBreak: 'break-word', overflowWrap: 'anywhere' }}>
+                    {doc.filename}
+                  </div>
                   <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '2px' }}>
                     {doc.page_count} pages • {(doc.file_size_bytes / 1024).toFixed(0)} KB • Uploaded{' '}
                     {new Date(doc.uploaded_at).toLocaleDateString()}
@@ -347,7 +349,7 @@ export const DocumentsPage: React.FC = () => {
               </div>
 
               {/* Status and Chunks Info */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.825rem', color: 'var(--text-secondary)' }}>
                   <Layers size={15} color="var(--accent-primary)" />
                   <span>{doc.chunk_count} Chunks</span>

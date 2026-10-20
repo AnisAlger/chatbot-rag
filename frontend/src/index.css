@@ -277,6 +277,18 @@ h1, h2, h3, h4, h5, h6 {
    RESPONSIVE DESIGN & MOBILE BREAKPOINTS
    ============================================================ */
 
+.app-main-layout {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+}
+
+.app-content-container {
+  flex: 1;
+  min-width: 0;
+  overflow-y: auto;
+}
+
 .page-container {
   padding: 32px 40px;
   max-width: 1280px;
@@ -294,8 +306,17 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Tablet & Mobile (<= 768px) */
 @media (max-width: 768px) {
+  .app-main-layout {
+    flex-direction: column !important;
+  }
+
+  .app-content-container {
+    width: 100% !important;
+    min-height: calc(100vh - 56px);
+  }
+
   .page-container {
-    padding: 20px 16px;
+    padding: 20px 14px;
   }
 
   .mobile-toggle-btn {
@@ -310,6 +331,7 @@ h1, h2, h3, h4, h5, h6 {
     top: 0;
     left: 0;
     right: 0;
+    width: 100%;
     height: 56px;
     padding: 0 16px;
     background: var(--bg-secondary);
@@ -364,25 +386,33 @@ h1, h2, h3, h4, h5, h6 {
   .chat-message-bubble {
     max-width: 95% !important;
   }
+
+  .chat-messages-container {
+    padding: 16px 12px !important;
+  }
+
+  .chat-input-bar {
+    padding: 10px 12px !important;
+  }
 }
 
 /* Small Smartphone (<= 480px) */
 @media (max-width: 480px) {
   .page-container {
-    padding: 16px 12px;
+    padding: 14px 10px;
   }
 
   .glass-panel {
-    padding: 16px !important;
+    padding: 16px 14px !important;
   }
 
   .auth-card {
-    padding: 24px 18px !important;
+    padding: 24px 16px !important;
     border-radius: var(--radius-md) !important;
   }
 
   .btn-primary, .btn-secondary {
-    padding: 8px 14px;
+    padding: 8px 12px;
     font-size: 0.85rem;
   }
 
