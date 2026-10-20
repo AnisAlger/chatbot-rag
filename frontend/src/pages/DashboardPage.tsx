@@ -57,13 +57,13 @@ export const DashboardPage: React.FC = () => {
   };
 
   return (
-    <div style={{ padding: '32px 40px', maxWidth: '1280px', margin: '0 auto' }}>
+    <div className="page-container">
       {/* Welcome Banner */}
       <div
         className="glass-panel"
         style={{
-          padding: '32px',
-          marginBottom: '32px',
+          padding: 'clamp(20px, 4vw, 32px)',
+          marginBottom: '28px',
           background: 'radial-gradient(ellipse at bottom right, rgba(99, 102, 241, 0.15) 0%, var(--bg-card) 60%)',
           display: 'flex',
           flexDirection: 'row',
@@ -80,16 +80,16 @@ export const DashboardPage: React.FC = () => {
               System Operational
             </span>
           </div>
-          <h1 style={{ fontSize: '1.85rem', fontWeight: 800, marginBottom: '8px' }}>
+          <h1 style={{ fontSize: 'clamp(1.35rem, 4vw, 1.85rem)', fontWeight: 800, marginBottom: '8px' }}>
             Welcome, {user?.full_name || user?.email?.split('@')[0]}
           </h1>
-          <p style={{ color: 'var(--text-secondary)', maxWidth: '600px', fontSize: '0.95rem' }}>
+          <p style={{ color: 'var(--text-secondary)', maxWidth: '600px', fontSize: 'clamp(0.85rem, 2.5vw, 0.95rem)' }}>
             Upload PDFs to your private knowledge base, extract verifiable facts, and ask questions
             grounded strictly in source citations.
           </p>
         </div>
 
-        <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
           <button onClick={() => navigate('/documents')} className="btn-secondary">
             <Upload size={16} />
             <span>Upload Document</span>
@@ -105,9 +105,9 @@ export const DashboardPage: React.FC = () => {
       <div
         style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-          gap: '20px',
-          marginBottom: '36px',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 200px), 1fr))',
+          gap: '16px',
+          marginBottom: '28px',
         }}
       >
         <div className="glass-panel" style={{ padding: '24px' }}>

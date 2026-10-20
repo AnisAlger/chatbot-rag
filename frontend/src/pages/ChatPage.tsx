@@ -33,6 +33,7 @@ export const ChatPage: React.FC = () => {
   const [inputQuestion, setInputQuestion] = useState<string>('');
   const [isSending, setIsSending] = useState<boolean>(false);
   const [copiedMsgId, setCopiedMsgId] = useState<string | null>(null);
+  const [showMobileSessions, setShowMobileSessions] = useState<boolean>(false);
 
   // Selected citation for modal
   const [activeCitation, setActiveCitation] = useState<Citation | null>(null);
@@ -203,9 +204,24 @@ export const ChatPage: React.FC = () => {
   };
 
   return (
-    <div style={{ display: 'flex', height: '100vh', overflow: 'hidden' }}>
+    <div style={{ display: 'flex', height: '100%', minHeight: 'calc(100vh - 56px)', overflow: 'hidden', position: 'relative' }}>
+      {/* Mobile Backdrop for Chat Sessions Drawer */}
+      {showMobileSessions && (
+        <div
+          onClick={() => setShowMobileSessions(false)}
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0, 0, 0, 0.55)',
+            backdropFilter: 'blur(4px)',
+            zIndex: 75,
+          }}
+        />
+      )}
+
       {/* Left Chat Sessions Column */}
       <aside
+        className={`chat-sessions-sidebar ${showMobileSessions ? 'chat-sessions-open' : ''}`}
         style={{
           width: '280px',
           minWidth: '280px',
@@ -217,7 +233,10 @@ export const ChatPage: React.FC = () => {
         }}
       >
         <button
-          onClick={handleCreateNewConversation}
+          onClick={() => {
+            handleCreateNewConversation();
+            setShowMobileSessions(false);
+          }}
           className="btn-primary"
           style={{ width: '100%', marginBottom: '16px', gap: '8px' }}
         >
@@ -235,7 +254,10 @@ export const ChatPage: React.FC = () => {
             return (
               <div
                 key={conv.id}
-                onClick={() => loadConversation(conv.id)}
+                onClick={() => {
+                  loadConversation(conv.id);
+                  setShowMobileSessions(false);
+                }}
                 style={{
                   display: 'flex',
                   alignItems: 'center',
@@ -285,26 +307,39 @@ export const ChatPage: React.FC = () => {
       </aside>
 
       {/* Main Chat Workspace Area */}
-      <main style={{ flex: 1, display: 'flex', flexDirection: 'column', background: 'var(--bg-primary)', overflow: 'hidden' }}>
+      <main style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', background: 'var(--bg-primary)', overflow: 'hidden' }}>
         {/* Chat Header with Document Filter Bar */}
         <div
           style={{
-            padding: '14px 24px',
+            padding: '12px clamp(14px, 3vw, 24px)',
             borderBottom: '1px solid var(--border-color)',
             background: 'var(--bg-secondary)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
             flexWrap: 'wrap',
-            gap: '12px',
+            gap: '10px',
           }}
         >
-          <div>
-            <h2 style={{ fontSize: '1.15rem', fontWeight: 700 }}>
-              {activeConv?.title || 'Chat Workspace'}
-            </h2>
-            <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-              Grounded Question-Answering with Verifiable PDF Citations
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            {/* Mobile Button to toggle sessions list */}
+            <button
+              onClick={() => setShowMobileSessions(!showMobileSessions)}
+              className="btn-secondary chat-sessions-toggle-btn"
+              style={{ padding: '6px 10px', fontSize: '0.8rem', gap: '6px' }}
+              title="View Conversations"
+            >
+              <MessageSquare size={14} />
+              <span>Chats ({conversations.length})</span>
+            </button>
+
+            <div>
+              <h2 style={{ fontSize: 'clamp(1rem, 3vw, 1.15rem)', fontWeight: 700 }}>
+                {activeConv?.title || 'Chat Workspace'}
+              </h2>
+              <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                Grounded Question-Answering with Verifiable PDF Citations
+              </div>
             </div>
           </div>
 
@@ -362,20 +397,20 @@ export const ChatPage: React.FC = () => {
         </div>
 
         {/* Message Thread Area */}
-        <div style={{ flex: 1, overflowY: 'auto', padding: '24px 32px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+        <div style={{ flex: 1, overflowY: 'auto', padding: 'clamp(14px, 3vw, 28px)', display: 'flex', flexDirection: 'column', gap: '16px' }}>
           {activeConv && activeConv.messages.length === 0 ? (
             <div
               style={{
                 margin: 'auto',
                 maxWidth: '540px',
                 textAlign: 'center',
-                padding: '36px 20px',
+                padding: 'clamp(20px, 4vw, 36px) 16px',
               }}
             >
               <div
                 style={{
-                  width: '64px',
-                  height: '64px',
+                  width: '56px',
+                  height: '56px',
                   borderRadius: '50%',
                   background: 'var(--accent-glow)',
                   color: 'var(--accent-primary)',
@@ -385,12 +420,12 @@ export const ChatPage: React.FC = () => {
                   margin: '0 auto 16px auto',
                 }}
               >
-                <Sparkles size={32} />
+                <Sparkles size={28} />
               </div>
-              <h3 style={{ fontSize: '1.4rem', fontWeight: 700, marginBottom: '8px' }}>
+              <h3 style={{ fontSize: 'clamp(1.2rem, 3.5vw, 1.4rem)', fontWeight: 700, marginBottom: '8px' }}>
                 Ask anything about your documents
               </h3>
-              <p style={{ fontSize: '0.925rem', color: 'var(--text-secondary)', marginBottom: '24px' }}>
+              <p style={{ fontSize: 'clamp(0.85rem, 2.5vw, 0.925rem)', color: 'var(--text-secondary)', marginBottom: '20px' }}>
                 Questions are answered strictly using retrieved passages from your uploaded PDFs. Every answer includes verifiable page numbers and excerpts.
               </p>
 
@@ -434,17 +469,17 @@ export const ChatPage: React.FC = () => {
                   style={{
                     display: 'flex',
                     flexDirection: isUser ? 'row-reverse' : 'row',
-                    gap: '12px',
-                    maxWidth: '85%',
+                    gap: '10px',
+                    maxWidth: isUser ? '85%' : '90%',
                     alignSelf: isUser ? 'flex-end' : 'flex-start',
                   }}
-                  className="animate-fade-in"
+                  className="animate-fade-in chat-message-bubble"
                 >
                   {/* Avatar */}
                   <div
                     style={{
-                      width: '34px',
-                      height: '34px',
+                      width: '32px',
+                      height: '32px',
                       borderRadius: '50%',
                       background: isUser ? 'var(--accent-primary)' : 'var(--bg-secondary)',
                       border: '1px solid var(--border-color)',
@@ -455,7 +490,7 @@ export const ChatPage: React.FC = () => {
                       flexShrink: 0,
                     }}
                   >
-                    {isUser ? <User size={18} /> : <Bot size={18} />}
+                    {isUser ? <User size={16} /> : <Bot size={16} />}
                   </div>
 
                   {/* Message Bubble */}
@@ -465,11 +500,11 @@ export const ChatPage: React.FC = () => {
                       color: isUser ? '#FFFFFF' : 'var(--text-primary)',
                       border: `1px solid ${isUser ? 'transparent' : 'var(--border-color)'}`,
                       borderRadius: 'var(--radius-lg)',
-                      padding: '16px 20px',
+                      padding: 'clamp(12px, 2.5vw, 16px) clamp(14px, 3vw, 20px)',
                       boxShadow: 'var(--shadow-sm)',
                     }}
                   >
-                    <div style={{ fontSize: '0.95rem', lineHeight: '1.6', whiteSpace: 'pre-wrap' }}>
+                    <div style={{ fontSize: '0.925rem', lineHeight: '1.6', whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
                       {msg.content}
                     </div>
 

@@ -36,9 +36,9 @@ const ProtectedLayout: React.FC = () => {
   }
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', width: '100%' }}>
+    <div className="app-main-layout" style={{ display: 'flex', minHeight: '100vh', width: '100%' }}>
       <Sidebar />
-      <div style={{ flex: 1, minWidth: 0, overflowY: 'auto' }}>
+      <div className="app-content-container" style={{ flex: 1, minWidth: 0, overflowY: 'auto' }}>
         <Outlet />
       </div>
     </div>

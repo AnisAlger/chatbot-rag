@@ -272,3 +272,123 @@ h1, h2, h3, h4, h5, h6 {
 .animate-pulse-glow {
   animation: pulseGlow 1.8s infinite ease-in-out;
 }
+
+/* ============================================================
+   RESPONSIVE DESIGN & MOBILE BREAKPOINTS
+   ============================================================ */
+
+.page-container {
+  padding: 32px 40px;
+  max-width: 1280px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.mobile-toggle-btn {
+  display: none;
+}
+
+.mobile-header-bar {
+  display: none;
+}
+
+/* Tablet & Mobile (<= 768px) */
+@media (max-width: 768px) {
+  .page-container {
+    padding: 20px 16px;
+  }
+
+  .mobile-toggle-btn {
+    display: flex !important;
+  }
+
+  .mobile-header-bar {
+    display: flex !important;
+    align-items: center;
+    justifyContent: space-between;
+    position: sticky;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 56px;
+    padding: 0 16px;
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-color);
+    z-index: 45;
+  }
+
+  /* Off-canvas mobile sidebar */
+  .app-sidebar {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    bottom: 0 !important;
+    width: 280px !important;
+    min-width: 280px !important;
+    transform: translateX(-100%);
+    transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    z-index: 100 !important;
+    box-shadow: var(--shadow-lg);
+  }
+
+  .app-sidebar.sidebar-mobile-open {
+    transform: translateX(0) !important;
+  }
+
+  /* Chat workspace mobile layouts */
+  .chat-layout {
+    flex-direction: column !important;
+  }
+
+  .chat-sessions-sidebar {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    bottom: 0 !important;
+    width: 290px !important;
+    min-width: 290px !important;
+    transform: translateX(-100%);
+    transition: transform 0.25s ease !important;
+    z-index: 80 !important;
+    box-shadow: var(--shadow-lg);
+  }
+
+  .chat-sessions-sidebar.chat-sessions-open {
+    transform: translateX(0) !important;
+  }
+
+  .chat-sessions-toggle-btn {
+    display: flex !important;
+  }
+
+  .chat-message-bubble {
+    max-width: 95% !important;
+  }
+}
+
+/* Small Smartphone (<= 480px) */
+@media (max-width: 480px) {
+  .page-container {
+    padding: 16px 12px;
+  }
+
+  .glass-panel {
+    padding: 16px !important;
+  }
+
+  .auth-card {
+    padding: 24px 18px !important;
+    border-radius: var(--radius-md) !important;
+  }
+
+  .btn-primary, .btn-secondary {
+    padding: 8px 14px;
+    font-size: 0.85rem;
+  }
+
+  .input-field {
+    padding: 9px 12px;
+    font-size: 0.9rem;
+  }
+}
+

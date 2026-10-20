@@ -51,19 +51,19 @@ export const LoginPage: React.FC = () => {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: '24px',
+        padding: 'clamp(16px, 4vw, 32px)',
         background: 'radial-gradient(ellipse at top, rgba(99, 102, 241, 0.12) 0%, var(--bg-primary) 70%)',
       }}
     >
       <div
-        className="glass-panel animate-fade-in"
+        className="glass-panel auth-card animate-fade-in"
         style={{
           width: '100%',
           maxWidth: '440px',
           padding: '36px',
           display: 'flex',
           flexDirection: 'column',
-          gap: '24px',
+          gap: '20px',
           boxShadow: 'var(--shadow-lg)',
         }}
       >
@@ -71,24 +71,24 @@ export const LoginPage: React.FC = () => {
         <div style={{ textAlign: 'center' }}>
           <div
             style={{
-              width: '52px',
-              height: '52px',
+              width: '48px',
+              height: '48px',
               borderRadius: 'var(--radius-lg)',
               background: 'var(--accent-gradient)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               color: '#FFFFFF',
-              margin: '0 auto 16px auto',
+              margin: '0 auto 14px auto',
               boxShadow: 'var(--shadow-glow)',
             }}
           >
-            <Bot size={28} />
+            <Bot size={26} />
           </div>
-          <h1 style={{ fontSize: '1.6rem', fontWeight: 700, marginBottom: '6px' }}>
+          <h1 style={{ fontSize: 'clamp(1.3rem, 5vw, 1.6rem)', fontWeight: 700, marginBottom: '6px' }}>
             {isRegister ? 'Create Your Account' : 'Welcome Back'}
           </h1>
-          <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
+          <p style={{ fontSize: 'clamp(0.8rem, 2.5vw, 0.875rem)', color: 'var(--text-secondary)' }}>
             {isRegister
               ? 'Get started with intelligent document retrieval & grounded RAG'
               : 'Sign in to access your knowledge base and conversations'}

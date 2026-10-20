@@ -41,29 +41,61 @@ export const Sidebar: React.FC = () => {
 
   return (
     <>
-      {/* Mobile Menu Button */}
-      <button
-        onClick={() => setMobileOpen(!mobileOpen)}
-        style={{
-          display: 'none',
-          position: 'fixed',
-          top: '16px',
-          left: '16px',
-          zIndex: 60,
-          padding: '8px',
-          background: 'var(--bg-card)',
-          border: '1px solid var(--border-color)',
-          borderRadius: 'var(--radius-md)',
-          color: 'var(--text-primary)',
-          cursor: 'pointer',
-        }}
-        className="mobile-toggle-btn"
-        aria-label="Toggle Navigation"
-      >
-        {mobileOpen ? <X size={20} /> : <Menu size={20} />}
-      </button>
+      {/* Mobile Top App Bar */}
+      <div className="mobile-header-bar">
+        <button
+          onClick={() => setMobileOpen(!mobileOpen)}
+          style={{
+            background: 'transparent',
+            border: 'none',
+            color: 'var(--text-primary)',
+            cursor: 'pointer',
+            padding: '6px',
+            display: 'flex',
+            alignItems: 'center',
+            borderRadius: 'var(--radius-sm)',
+          }}
+          aria-label="Toggle Navigation"
+        >
+          {mobileOpen ? <X size={22} /> : <Menu size={22} />}
+        </button>
 
-      {/* Backdrop for Mobile */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 700, fontSize: '0.95rem' }}>
+          <div
+            style={{
+              width: '28px',
+              height: '28px',
+              borderRadius: 'var(--radius-sm)',
+              background: 'var(--accent-gradient)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#fff',
+            }}
+          >
+            <Bot size={16} />
+          </div>
+          <span>RAG Chatbot</span>
+        </div>
+
+        <button
+          onClick={toggleTheme}
+          style={{
+            background: 'transparent',
+            border: 'none',
+            color: 'var(--text-primary)',
+            cursor: 'pointer',
+            padding: '6px',
+            display: 'flex',
+            alignItems: 'center',
+          }}
+          title="Toggle Theme"
+        >
+          {theme === 'dark' ? <Sun size={18} color="#FBBF24" /> : <Moon size={18} color="#6366F1" />}
+        </button>
+      </div>
+
+      {/* Backdrop for Mobile Drawer */}
       {mobileOpen && (
         <div
           onClick={() => setMobileOpen(false)}
@@ -94,7 +126,7 @@ export const Sidebar: React.FC = () => {
           zIndex: 50,
           padding: '20px 12px',
         }}
-        className={mobileOpen ? 'sidebar-mobile-open' : ''}
+        className={`app-sidebar ${mobileOpen ? 'sidebar-mobile-open' : ''}`}
       >
         {/* Top Header */}
         <div>
