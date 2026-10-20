@@ -1,0 +1,56 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:7.0
+    container_name: rag_mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_DATABASE: chatbot_rag
+    volumes:
+      - mongo_data:/data/db
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: rag_backend
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - APP_ENV=production
+      - APP_SECRET_KEY=production-secret-key-32-chars-minimum-sample
+      - JWT_SECRET_KEY=production-jwt-secret-key-minimum-32-chars-sample
+      - MONGODB_URI=mongodb://mongodb:27017
+      - MONGODB_DATABASE=chatbot_rag
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY:-}
+      - OPENROUTER_BASE_URL=https://openrouter.ai/api/v1
+      - OPENROUTER_CHAT_MODEL=meta-llama/llama-3.3-70b-instruct:free
+      - EMBEDDING_PROVIDER=${EMBEDDING_PROVIDER:-local_mock}
+      - EMBEDDING_API_KEY=${EMBEDDING_API_KEY:-}
+      - VECTOR_STORE_TYPE=local
+      - LOCAL_VECTOR_STORE_PATH=/app/data/vector_store
+      - UPLOAD_DIR=/app/data/uploads
+      - FRONTEND_ORIGINS=http://localhost:5173,http://localhost:3000
+    volumes:
+      - backend_data:/app/data
+    depends_on:
+      - mongodb
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: rag_frontend
+    restart: unless-stopped
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+
+volumes:
+  mongo_data:
+  backend_data:
