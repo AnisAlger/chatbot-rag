@@ -23,8 +23,12 @@ services:
       - key: APP_SECRET_KEY
         generateValue: true
       - key: EMBEDDING_PROVIDER
-        value: local_mock
+        value: openrouter
+      - key: EMBEDDING_API_KEY
+        sync: false
+      - key: EMBEDDING_MODEL
+        value: liquid/lfm-2.5-embedding-350m:free
       - key: VECTOR_STORE_TYPE
-        value: local
+        value: atlas
       - key: FRONTEND_ORIGINS
         value: https://*.vercel.app,http://localhost:5173

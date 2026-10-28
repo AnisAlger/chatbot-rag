@@ -10,7 +10,7 @@ class Settings(BaseSettings):
     Validates all required parameters at startup.
     """
     model_config = SettingsConfigDict(
-        env_file=".env",
+        env_file=(".env", "backend/.env"),
         env_file_encoding="utf-8",
         extra="ignore"
     )
@@ -49,8 +49,8 @@ class Settings(BaseSettings):
     # File uploads & Chunking
     UPLOAD_DIR: str = "./data/uploads"
     MAX_UPLOAD_MB: int = 10
-    CHUNK_SIZE: int = 800
-    CHUNK_OVERLAP: int = 100
+    CHUNK_SIZE: int = 350
+    CHUNK_OVERLAP: int = 50
     TOP_K_RESULTS: int = 5
 
     # CORS

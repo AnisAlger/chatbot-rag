@@ -40,9 +40,11 @@ class OpenRouterEmbeddingProvider(BaseEmbeddingProvider):
                 timeout=30.0,
                 max_retries=2
             )
+            # Truncate texts to ~350 tokens (1400 chars) to stay safely within embedding model token limits
+            safe_inputs = [t[:1400] for t in texts]
             response = client.embeddings.create(
                 model=self.model,
-                input=texts
+                input=safe_inputs
             )
             # Maintain index order
             embeddings = [item.embedding for item in sorted(response.data, key=lambda x: x.index)]

@@ -50,5 +50,22 @@ class RetrievalService:
         )
         return chunks
 
+    def get_document_chunks(
+        self,
+        owner_id: str,
+        document_ids: List[str],
+        limit: int = settings.TOP_K_RESULTS
+    ) -> List[Dict[str, Any]]:
+        """
+        Retrieves initial chunks of the selected documents.
+        Used as fallback context when broad/evaluative questions are asked.
+        """
+        chunks = self.vector_store.get_document_chunks(owner_id, document_ids, limit=limit)
+        logger.info(
+            "Retrieved %d fallback document chunks for user %s across docs %s",
+            len(chunks), owner_id, document_ids
+        )
+        return chunks
+
 
 retrieval_service = RetrievalService()

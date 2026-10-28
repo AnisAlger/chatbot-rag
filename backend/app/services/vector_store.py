@@ -37,6 +37,16 @@ class BaseVectorStore(ABC):
         pass
 
     @abstractmethod
+    def get_document_chunks(
+        self,
+        owner_id: str,
+        document_ids: List[str],
+        limit: int = 5
+    ) -> List[Dict[str, Any]]:
+        """Retrieves initial chunks of the specified document(s) for general queries."""
+        pass
+
+    @abstractmethod
     def delete_document_chunks(self, document_id: str, owner_id: str) -> int:
         """Deletes all vector chunks belonging to the specified document and owner."""
         pass
@@ -92,7 +102,6 @@ class LocalVectorStore(BaseVectorStore):
             return
 
         new_vectors = np.array(embeddings, dtype=np.float32)
-        # Normalize vectors for cosine similarity via dot product
         norms = np.linalg.norm(new_vectors, axis=1, keepdims=True)
         norms[norms == 0] = 1.0
         normalized_vectors = new_vectors / norms
@@ -117,7 +126,6 @@ class LocalVectorStore(BaseVectorStore):
         if self.vectors is None or len(self.chunks_metadata) == 0:
             return []
 
-        # Filter candidate indices strictly by owner_id and optional document_ids
         allowed_indices = []
         doc_set = set(document_ids) if document_ids else None
 
@@ -131,17 +139,14 @@ class LocalVectorStore(BaseVectorStore):
         if not allowed_indices:
             return []
 
-        # Query vector normalization
         q_vec = np.array(query_embedding, dtype=np.float32)
         q_norm = np.linalg.norm(q_vec)
         if q_norm > 0:
             q_vec = q_vec / q_norm
 
         candidate_vectors = self.vectors[allowed_indices]
-        # Cosine similarity is the dot product of normalized vectors
         scores = np.dot(candidate_vectors, q_vec)
 
-        # Sort descending
         ranked_order = np.argsort(scores)[::-1]
 
         results = []
@@ -157,6 +162,24 @@ class LocalVectorStore(BaseVectorStore):
                 break
 
         return results
+
+    def get_document_chunks(
+        self,
+        owner_id: str,
+        document_ids: List[str],
+        limit: int = 5
+    ) -> List[Dict[str, Any]]:
+        doc_set = set(document_ids) if document_ids else None
+        results = []
+        for meta in self.chunks_metadata:
+            if meta.get("owner_id") != owner_id:
+                continue
+            if doc_set is not None and meta.get("document_id") not in doc_set:
+                continue
+            results.append(dict(meta))
+
+        results.sort(key=lambda x: (x.get("page_number", 1), x.get("chunk_index", 0)))
+        return results[:limit]
 
     def delete_document_chunks(self, document_id: str, owner_id: str) -> int:
         if self.vectors is None or len(self.chunks_metadata) == 0:
@@ -192,27 +215,9 @@ class LocalVectorStore(BaseVectorStore):
 
 class MongoAtlasVectorStore(BaseVectorStore):
     """
-    MongoDB Atlas Vector Search adapter using Atlas Search ($vectorSearch).
-    
-    Required Atlas Search Index Definition (on 'chunks' collection):
-    {
-      "fields": [
-        {
-          "type": "vector",
-          "path": "embedding",
-          "numDimensions": 1536,
-          "similarity": "cosine"
-        },
-        {
-          "type": "filter",
-          "path": "owner_id"
-        },
-        {
-          "type": "filter",
-          "path": "document_id"
-        }
-      ]
-    }
+    MongoDB Atlas Vector Search adapter using Atlas Search ($vectorSearch)
+    with seamless in-database cosine similarity fallback when Atlas Search index
+    is not configured or returns empty results.
     """
 
     def __init__(self, index_name: str = settings.MONGODB_VECTOR_INDEX_NAME):
@@ -248,37 +253,127 @@ class MongoAtlasVectorStore(BaseVectorStore):
         if db_manager.is_fallback:
             return self.fallback.search(query_embedding, owner_id, document_ids, top_k, min_score)
 
-        pipeline = []
+        # 1. Try native Atlas $vectorSearch if available
         filter_clause: Dict[str, Any] = {"owner_id": {"$eq": owner_id}}
         if document_ids:
             filter_clause["document_id"] = {"$in": document_ids}
 
-        vector_search_stage = {
-            "$vectorSearch": {
-                "index": self.index_name,
-                "path": "embedding",
-                "queryVector": query_embedding,
-                "numCandidates": max(50, top_k * 10),
-                "limit": top_k,
-                "filter": filter_clause
+        pipeline = [
+            {
+                "$vectorSearch": {
+                    "index": self.index_name,
+                    "path": "embedding",
+                    "queryVector": query_embedding,
+                    "numCandidates": max(50, top_k * 10),
+                    "limit": top_k,
+                    "filter": filter_clause
+                }
+            },
+            {
+                "$project": {
+                    "_id": 0,
+                    "embedding": 0,
+                    "score": {"$meta": "vectorSearchScore"}
+                }
             }
-        }
-        pipeline.append(vector_search_stage)
-        pipeline.append({
-            "$project": {
-                "_id": 0,
-                "embedding": 0,
-                "score": {"$meta": "vectorSearchScore"}
-            }
-        })
+        ]
 
         try:
             cursor = db_manager.chunks.aggregate(pipeline)
             results = list(cursor)
-            return [r for r in results if r.get("score", 1.0) >= min_score]
+            filtered = [r for r in results if r.get("score", 1.0) >= min_score]
+            if filtered:
+                return filtered
         except Exception as e:
-            logger.warning("MongoDB Atlas $vectorSearch failed (%s). Using local vector fallback.", e)
+            logger.info("Atlas $vectorSearch not configured or failed (%s). Using MongoDB in-database vector fallback.", e)
+
+        # 2. Resilient fallback: compute exact cosine similarity over user chunks directly from MongoDB
+        return self._search_mongodb_in_memory(query_embedding, owner_id, document_ids, top_k, min_score)
+
+    def _search_mongodb_in_memory(
+        self,
+        query_embedding: List[float],
+        owner_id: str,
+        document_ids: Optional[List[str]] = None,
+        top_k: int = 5,
+        min_score: float = 0.0
+    ) -> List[Dict[str, Any]]:
+        filter_query: Dict[str, Any] = {"owner_id": owner_id}
+        if document_ids:
+            filter_query["document_id"] = {"$in": document_ids}
+
+        try:
+            candidates = list(db_manager.chunks.find(filter_query))
+        except Exception as e:
+            logger.error("Failed to query chunks from MongoDB: %s", e)
             return self.fallback.search(query_embedding, owner_id, document_ids, top_k, min_score)
+
+        if not candidates:
+            # Check local file fallback if legacy chunks exist
+            return self.fallback.search(query_embedding, owner_id, document_ids, top_k, min_score)
+
+        vectors = []
+        valid_candidates = []
+        for c in candidates:
+            emb = c.get("embedding")
+            if emb and isinstance(emb, list) and len(emb) == len(query_embedding):
+                vectors.append(emb)
+                valid_candidates.append(c)
+
+        if not valid_candidates:
+            return self.fallback.search(query_embedding, owner_id, document_ids, top_k, min_score)
+
+        matrix = np.array(vectors, dtype=np.float32)
+        norms = np.linalg.norm(matrix, axis=1, keepdims=True)
+        norms[norms == 0] = 1.0
+        normalized_matrix = matrix / norms
+
+        q_vec = np.array(query_embedding, dtype=np.float32)
+        q_norm = np.linalg.norm(q_vec)
+        if q_norm > 0:
+            q_vec = q_vec / q_norm
+
+        scores = np.dot(normalized_matrix, q_vec)
+        ranked = np.argsort(scores)[::-1]
+
+        results = []
+        for rank in ranked:
+            score = float(scores[rank])
+            if score < min_score:
+                continue
+            item = dict(valid_candidates[rank])
+            item.pop("_id", None)
+            item.pop("embedding", None)
+            item["score"] = round(score, 4)
+            results.append(item)
+            if len(results) >= top_k:
+                break
+
+        return results
+
+    def get_document_chunks(
+        self,
+        owner_id: str,
+        document_ids: List[str],
+        limit: int = 5
+    ) -> List[Dict[str, Any]]:
+        if not db_manager.is_fallback:
+            try:
+                filter_q: Dict[str, Any] = {"owner_id": owner_id}
+                if document_ids:
+                    filter_q["document_id"] = {"$in": document_ids}
+
+                cursor = db_manager.chunks.find(
+                    filter_q,
+                    {"_id": 0, "embedding": 0}
+                ).sort([("page_number", 1), ("chunk_index", 1)]).limit(limit)
+                chunks = list(cursor)
+                if chunks:
+                    return chunks
+            except Exception as e:
+                logger.error("Error retrieving document chunks from MongoDB: %s", e)
+
+        return self.fallback.get_document_chunks(owner_id, document_ids, limit)
 
     def delete_document_chunks(self, document_id: str, owner_id: str) -> int:
         count = 0
@@ -292,10 +387,18 @@ class MongoAtlasVectorStore(BaseVectorStore):
         return count
 
     def get_stats(self) -> Dict[str, Any]:
+        mongo_chunk_count = 0
+        if not db_manager.is_fallback:
+            try:
+                mongo_chunk_count = db_manager.chunks.count_documents({})
+            except Exception:
+                pass
+
         return {
             "type": "mongodb_atlas",
             "index_name": self.index_name,
             "connected": not db_manager.is_fallback,
+            "total_chunks_in_mongo": mongo_chunk_count,
             "fallback_stats": self.fallback.get_stats()
         }
 
@@ -307,7 +410,7 @@ _vector_store: Optional[BaseVectorStore] = None
 def get_vector_store() -> BaseVectorStore:
     global _vector_store
     if _vector_store is None:
-        if settings.VECTOR_STORE_TYPE.lower() == "atlas":
+        if settings.VECTOR_STORE_TYPE.lower() == "atlas" or not db_manager.is_fallback:
             _vector_store = MongoAtlasVectorStore()
         else:
             _vector_store = LocalVectorStore()
